@@ -1,0 +1,6 @@
+
+git+https://github.com/huggingface/transformers 
+accelerate
+qwen-vl-utils==0.0.8
+torch 
+torchvision
