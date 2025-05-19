@@ -36,8 +36,10 @@ if __name__ == "__main__":
     # input_path = os.path.join("../data/", DATASET, DATASET + "_val_annotation_data_test_single_vasevl.json")
     # output_path = os.path.join("../data/", DATASET, DATASET + "_question.json")
 
-    input_path = "../data/VaseVLDataset_sub/data_test_single_llava_vasevl_v4_sub.json"
-    output_path = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
+    # input_path = "../data/VaseVLDataset_sub/data_test_single_llava_vasevl_v4_sub.json"
+    # output_path = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
+    input_path = "../data/VaseVLDataset/vasevl_test_50.json"
+    output_path = "../data/VaseVLDataset/VaseVL_gt_answers_50.json"
     print(output_path)
 
 

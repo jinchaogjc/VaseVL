@@ -65,12 +65,17 @@ def save_question_list(output_path, question_list):
 if __name__ == "__main__":
     # Sample input data (use your actual JSON data)
     #
-    DATASET = "VaseVLDataset_sub"
+    # DATASET = "VaseVLDataset_sub"
     # input_path = os.path.join("../data/", DATASET, DATASET + "_val_annotation_data_test_single_vasevl.json")
     # output_path = os.path.join("../data/", DATASET, DATASET + "_question.json")
-
-    input_path = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
-    output_path = "../data/VaseVLDataset_sub/VaseVL_question.json"
+    
+    # DATASET = "VaseVLDataset_sub"
+    # input_path = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
+    # output_path = "../data/VaseVLDataset_sub/VaseVL_question.json"
+    
+    DATASET = "VaseVLDataset"
+    input_path = "../data/VaseVLDataset/VaseVL_gt_answers_50.json"
+    output_path = "../data/VaseVLDataset/VaseVL_question_50.json"
     print(output_path)
 
 
