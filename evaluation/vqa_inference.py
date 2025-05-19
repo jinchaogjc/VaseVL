@@ -234,7 +234,7 @@ if __name__=="__main__":
     args = infer_parser.parse_args()
     print(args)
 
-    if args.model_path.startswith("Qwen/Qwen2.5"):
+    if "Qwen2.5" in args.model_path:
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             args.model_path, torch_dtype="auto", device_map=device_map
         )
