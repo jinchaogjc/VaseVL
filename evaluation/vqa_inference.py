@@ -171,7 +171,7 @@ def convert_to_jsonl(questions, answers, output_path):
 
 
 if __name__=="__main__":
-    device_map, device = get_device()
+    # device_map, device = get_device()
 
 
     """Configure argument parser for inference parameters"""
