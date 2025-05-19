@@ -1,7 +1,7 @@
 import os
 import json
 import re
-from accuracy_valuator import TextMatchEvaluator, TextCapsBleu4Evaluator
+from accuracy_valuator import TextMatchEvaluator, TextCapsBleu4Evaluator, DateAccuracyEvaluator
 
 
 def eval_single(annotation_file, result_file):
@@ -28,6 +28,10 @@ def eval_single(annotation_file, result_file):
     print(acc_dict)
     print(acc_list)
 
+    Q5 = "What is the date of the vase?"
+    evaluator_date = DateAccuracyEvaluator()
+    evaluator_date.set_q(Q5)
+    acc_Q5 = evaluator_date.eval_pred_list(pred_list)
 
     Q7 = "What is the decoration of the vase?"
     Q8 = "What is the overall of the vase?"
@@ -42,6 +46,7 @@ def eval_single(annotation_file, result_file):
     print(bleu1_Q8)
 
     print("Accuracy from Q1 to Q6: ", acc_list[0:6])
+    print("Accuracy from Q5: ", acc_Q5)
     print("Bleu of Q7: ", bleu1_Q7)
     print("Bleu_of Q8: ", bleu1_Q8)
 
@@ -49,7 +54,8 @@ def eval_single(annotation_file, result_file):
 if __name__ == "__main__":
     annotation_file = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
     # result_file = "../data/VaseVLDataset_sub/VaseVL_inference_answers.jsonl"
-    result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+    # result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+    result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2-VL-2B-Instruct_inference_answers.jsonl"
 
     
     eval_single(annotation_file, result_file)

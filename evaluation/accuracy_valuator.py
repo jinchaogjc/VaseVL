@@ -244,7 +244,44 @@ class TextMatchEvaluator:
 class DateAccuracyEvaluator:
     def __init__(self):
         self.date_pattern = r"(\b\d{3,4}\s*(BCE?|AD)?\b)(\s*to\s*|\s*-\s*)(\b\d{3,4}\s*(BCE?|AD)?\b)"
+    
+    def _convert_number(self, value: str) -> int:
+        """
+        Convert a numeric string with optional era notation (BC/BCE/AD/CE) to integer.
         
+        Handles:
+        - BC/BCE as negative years
+        - AD/CE as positive years (default if no era specified)
+        - Pure numeric strings
+        - Thousand separators (commas)
+        
+        Args:
+            value: Input string containing numbers and optional era notation
+            
+        Returns:
+            Integer representation of the input value
+            
+        Raises:
+            ValueError: If no numeric value can be extracted
+        """
+        # Normalize era notations and remove commas
+        cleaned = value.upper().replace(',', '').strip()
+        
+        # Identify era markers
+        era_multiplier = 1
+        for era in ['BC', 'BCE']:
+            if era in cleaned:
+                cleaned = cleaned.replace(era, '')
+                era_multiplier = -1
+                break
+                
+        # Extract numeric part using regular expression
+        match = re.search(r'-?\d+', cleaned)
+        if not match:
+            raise ValueError(f"No numeric value found in: {value}")
+            
+        return int(match.group()) * era_multiplier
+    
     def _extract_date_range(self, text):
         """使用正则表达式提取日期范围"""
         matches = re.findall(self.date_pattern, text, re.IGNORECASE)
@@ -259,7 +296,7 @@ class DateAccuracyEvaluator:
                 return int(y.replace('AD', '').strip())
                 
             start = convert_year(matches[0][0])
-            end = convert_number(matches[0][3])
+            end = self.convert_number(matches[0][3])
             return sorted([start, end])
         except:
             return None
@@ -276,26 +313,29 @@ class DateAccuracyEvaluator:
         total_span = gt_range[1] - gt_range[0]
         return overlap / total_span if total_span !=0 else 0.0
 
+    def set_q(self, Q):
+        self.Q = Q
+
     def eval_pred_list(self, pred_list):
         """主评估方法"""
         scores = []
         for entry in pred_list:
-            # 提取真实日期范围
-            gt_dates = [self._extract_date_range(gt) for gt in entry["gt_answers"]]
-            gt_dates = [d for d in gt_dates if d]
-            
-            if not gt_dates:
-                scores.append(1.0 if "not available" in entry["gt_answers"] else 0.0)
-                continue
+            if (entry["question"] == self.Q):
+                # 提取真实日期范围
+                gt_dates = [self._extract_date_range(gt) for gt in entry["gt_answers"]]
+                gt_dates = [d for d in gt_dates if d]
                 
-            # 提取预测日期
-            pred_range = self._extract_date_range(entry["pred_answer"])
-            if not pred_range:
-                scores.append(0.0)
-                continue
-                
-            # 计算最高匹配度
-            max_score = max(self._compare_ranges(gt, pred_range) for gt in gt_dates)
-            scores.append(1.0 if max_score >= 0.5 else 0.0)
-            
+                if not gt_dates:
+                    scores.append(1.0 if "not available" in entry["gt_answers"] else 0.0)
+                    continue
+                    
+                # 提取预测日期
+                pred_range = self._extract_date_range(entry["pred_answer"])
+                if not pred_range:
+                    scores.append(0.0)
+                    continue
+                    
+                # 计算最高匹配度
+                max_score = max(self._compare_ranges(gt, pred_range) for gt in gt_dates)
+                scores.append(1.0 if max_score >= 0.5 else 0.0)  
         return sum(scores) / len(scores)
