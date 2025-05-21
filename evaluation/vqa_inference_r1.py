@@ -234,11 +234,9 @@ if __name__=="__main__":
     args = infer_parser.parse_args()
     print(args)
 
-    if ("Qwen2.5" in args.model_path) or ("qwen2_5" in args.model_path):
+    if "Qwen2.5" in args.model_path:
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-            args.model_path, 
-            torch_dtype="auto", 
-            device_map=device_map
+            args.model_path, torch_dtype="auto", device_map=device_map
         )
     elif args.model_path.startswith("Qwen/Qwen2-"):
         # default: Load the model on the available device(s)
@@ -249,14 +247,15 @@ if __name__=="__main__":
         print(args.model_path, " model not supported.")
     
 
-    min_pixels = 256*28*28
-    max_pixels = 1280*28*28
-    processor = AutoProcessor.from_pretrained(args.model_path, min_pixels=min_pixels, max_pixels=max_pixels)
+    # min_pixels = 256*28*28
+    # max_pixels = 1280*28*28
+    # processor = AutoProcessor.from_pretrained(args.model_path, min_pixels=min_pixels, max_pixels=max_pixels)
 
-    # processor = AutoProcessor.from_pretrained(args.model_path)
-
-    # messages = prepare_message_example()
-    messages = prepare_message(args.question_file)
+    processor = AutoProcessor.from_pretrained(args.model_path)
+    
+    print("use example question:")
+    messages = prepare_message_example()
+    # messages = prepare_message(args.question_file)
 
     
     texts = [

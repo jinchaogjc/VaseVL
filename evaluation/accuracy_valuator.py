@@ -38,7 +38,8 @@ class TextCapsBleu4Evaluator:
             if (entry["question"] == self.Q):
                 gts[idx] = [{"caption": a} for a in entry["gt_answers"]]
                 res[idx] = [{"caption": entry["pred_answer"]}]
-
+        
+        # you need to install Java
         gts = self.tokenizer.tokenize(gts)
         res = self.tokenizer.tokenize(res)
         score, _ = self.scorer.compute_score(gts, res)
