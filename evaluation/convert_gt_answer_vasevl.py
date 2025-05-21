@@ -6,7 +6,7 @@ def convert_conversations_to_qa(input_data):
     
     for item in input_data:
         vase_id = item["id"]
-        image_path = item["image"]
+        image_path = item["images"]
         conversations = item["conversations"]
         
         # 遍历对话对（每两个元素为一组）
@@ -19,7 +19,7 @@ def convert_conversations_to_qa(input_data):
             
             qa_entry = {
                 "id": global_id,
-                "image": image_path,
+                "images": image_path,
                 "instruction": question,
                 "output": answer,
                 "type": "qa"
@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     # input_path = "../data/VaseVLDataset_sub/data_test_single_llava_vasevl_v4_sub.json"
     # output_path = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
-    input_path = "../data/VaseVLDataset/vasevl_test_50.json"
-    output_path = "../data/VaseVLDataset/VaseVL_gt_answers_50.json"
+    input_path = "data/VaseVLDataset/data_test_single_llava_vasevl_v4.json"
+    output_path = "data/VaseVLDataset/vasevl_single_gt_answers.json"
     print(output_path)
 
 

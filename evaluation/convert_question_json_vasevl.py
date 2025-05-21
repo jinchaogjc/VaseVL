@@ -18,8 +18,8 @@ def convert_json_to_question_list(input_data):
     
     # Iterate through each vase entry
     for vase in input_data:
-        image_path = vase["image"]
-        image_path = Path(f"../data/{DATASET}/{image_path}").as_posix()
+        image_path = vase["images"]
+        image_path = Path(f"data/{DATASET}/{image_path}").as_posix()
         
         question_id = vase["id"]
         question = vase["instruction"]
@@ -74,8 +74,8 @@ if __name__ == "__main__":
     # output_path = "../data/VaseVLDataset_sub/VaseVL_question.json"
     
     DATASET = "VaseVLDataset"
-    input_path = "../data/VaseVLDataset/VaseVL_gt_answers_50.json"
-    output_path = "../data/VaseVLDataset/VaseVL_question_50.json"
+    input_path = "data/VaseVLDataset/vasevl_single_gt_answers.json"
+    output_path = "data/VaseVLDataset/vasevl_single_questions.json"
     print(output_path)
 
 
