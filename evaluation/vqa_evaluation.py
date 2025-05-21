@@ -52,12 +52,16 @@ def eval_single(annotation_file, result_file):
 
 
 if __name__ == "__main__":
-    annotation_file = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
+    # annotation_file = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
     # result_file = "../data/VaseVLDataset_sub/VaseVL_inference_answers.jsonl"
     # result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
-    result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2-VL-2B-Instruct_inference_answers.jsonl"
-
+    # result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2-VL-2B-Instruct_inference_answers.jsonl"
     
+    annotation_file = "../data/VaseVLDataset/VaseVL_gt_answers_50.json"
+    # result_file = "../data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+    # result_file = "../data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_mllm_demo_inference_answers.jsonl"
+    
+    result_file = "../data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_vasevl_dataset_inference_answers.jsonl"    
     eval_single(annotation_file, result_file)
 
     print("FINISHED.........")
