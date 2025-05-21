@@ -249,11 +249,13 @@ if __name__=="__main__":
         print(args.model_path, " model not supported.")
     
 
-    min_pixels = 256*28*28
-    max_pixels = 1280*28*28
-    processor = AutoProcessor.from_pretrained(args.model_path, min_pixels=min_pixels, max_pixels=max_pixels)
+    # min_pixels = 256*28*28
+    # max_pixels = 1280*28*28
+    # processor = AutoProcessor.from_pretrained(args.model_path, min_pixels=min_pixels, max_pixels=max_pixels)
 
-    # processor = AutoProcessor.from_pretrained(args.model_path)
+    processor = AutoProcessor.from_pretrained(
+        args.model_path,
+        use_fast=True)
 
     # messages = prepare_message_example()
     messages = prepare_message(args.question_file)
