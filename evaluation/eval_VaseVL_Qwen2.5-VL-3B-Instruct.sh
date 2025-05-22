@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-INFER_FILE="data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+INFER_FILE="data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
 python evaluation/vqa_inference.py \
     --model-path "Qwen/Qwen2.5-VL-3B-Instruct" \
     --image-dir "data/VaseVLDataset/images" \

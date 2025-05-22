@@ -9,7 +9,7 @@ python evaluation/vqa_evaluation.py \
 
 
 
-INFER_FILE="data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+INFER_FILE="data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
 
 # --annotation-file use_default_annotation_file
 python evaluation/vqa_evaluation.py \
@@ -20,7 +20,7 @@ python evaluation/vqa_evaluation.py \
 #!/bin/bash
 
 
-INFER_FILE="data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+INFER_FILE="data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
 # --annotation-file use_default_annotation_file
 python evaluation/vqa_evaluation.py \
     --infer-file  $INFER_FILE \
