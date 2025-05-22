@@ -1,10 +1,8 @@
 #!/bin/bash
 
-
-INFER_FILE="data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+INFER_FILE="results/VaseVL_Qwen2.5-VL-3B-Instruct/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
 python evaluation/vqa_inference.py \
     --model-path "Qwen/Qwen2.5-VL-3B-Instruct" \
-    --image-dir "data/VaseVLDataset/images" \
     --question-file "data/VaseVLDataset/vasevl_single_questions.json" \
     --output-file $INFER_FILE \
     --batch-size 80

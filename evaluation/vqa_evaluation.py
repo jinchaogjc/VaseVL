@@ -15,7 +15,12 @@ def eval_single(annotation_file, infer_file, result_file):
 
     pred_list = []
     for result in results:
-        annotation = annotations[(result['question_id'], result['instruction'].lower())]
+        try:
+            annotation = annotations[(result['question_id'], result['instruction'].lower())]
+        except Exception:
+            import pdb
+            pdb.set_trace()
+            pass
         pred_list.append({
             "pred_answer": result['output'],
             "gt_answers": annotation['output'],

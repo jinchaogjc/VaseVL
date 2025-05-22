@@ -4,7 +4,7 @@ from transformers import Qwen2VLForConditionalGeneration
 import json
 import os
 from tqdm import tqdm
-from PIL import Image
+# from PIL import Image
 import sys, os
 import platform
 import torch
@@ -87,7 +87,7 @@ def prepare_message_example():
             "content": [
                 {
                     "type": "image",
-                    "image": "../example/vase.png",
+                    "image": "example/vase.png",
                     "question_id": 34602
                 },
                 {"type": "text", "text": "Describe this image."},
@@ -189,16 +189,10 @@ if __name__=="__main__":
     infer_parser.add_argument(
         "--image-dir",
         type=str,
-        default="../data/TextVQA/images",
+        default="data/VaseVLDataset/images",
         help="Path to image directory (default: %(default)s)"
     )
     
-    # infer_parser.add_argument(
-    #     "--dataset-file",
-    #     type=str,
-    #     default="../data/TextVQA/TextVQA.jsonl",
-    #     help="Path to dataset JSONL file (default: %(default)s)"
-    # )
     
     infer_parser.add_argument(
         "--question-file",
