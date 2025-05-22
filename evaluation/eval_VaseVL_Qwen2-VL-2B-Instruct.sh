@@ -4,7 +4,6 @@ INFER_FILE="esults/VaseVL_Qwen2-VL-2B-Instruct/VaseVL_Qwen2-VL-2B-Instruct_infer
 
 python evaluation/vqa_inference.py \
     --model-path "Qwen/Qwen2-VL-2B-Instruct" \
-    --image-dir "data/VaseVLDataset/images" \
     --question-file "data/VaseVLDataset/vasevl_single_questions.json" \
     --output-file $INFER_FILE \
     --batch-size 80
