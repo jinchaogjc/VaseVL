@@ -12,4 +12,4 @@ python evaluation/vqa_inference_r1.py \
 # --annotation-file use_default_annotation_file
 python evaluation/vqa_evaluation.py \
     --infer-file  $INFER_FILE \
-    --result-file "results/VaseVL_Qwen2.5-VL-3B-Instruct/VaseVL_Qwen2.5-VL-3B-Instruct_evaluation.txt"
+    --result-file "results/VaseVL_Qwen2.5-VL-3B-GRPO-VASEL-ZERO-R1-400/VaseVL_Qwen2.5-VL-3B-GRPO-VASEL-ZERO-R1-400_evaluation.txt"
