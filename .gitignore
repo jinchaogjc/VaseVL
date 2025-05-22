@@ -179,3 +179,4 @@ evaluation/results/
 local/
 .cache
 results/
+.nfs*

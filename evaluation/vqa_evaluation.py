@@ -1,11 +1,22 @@
 import os
 import json
 import re
-from accuracy_valuator import TextMatchEvaluator, TextCapsBleu4Evaluator, DateAccuracyEvaluator
+from accuracy_valuator import TextMatchEvaluator, TextCapsBleu4Evaluator, DateAccuracyEvaluator, STVQAANLSEvaluator
 import argparse
 
 
 def eval_single(annotation_file, infer_file, result_file):
+
+    Q1 = "What is the fabric of the vase?"
+    Q2 = "What is the technique of the vase?"
+    Q3 = "What is the shape name of the vase?"
+    Q4 = "What is the provenance of the vase?"
+    Q5 = "What is the date of the vase?"
+    Q6 = "What is the attributed to of the vase?"
+    Q7 = "What is the decoration of the vase?"
+    Q8 = "What is the overall of the vase?"
+
+
     experiment_name = os.path.splitext(os.path.basename(infer_file))[0]
     print(experiment_name)
     annotations = json.load(open(annotation_file))
@@ -28,24 +39,32 @@ def eval_single(annotation_file, infer_file, result_file):
         })
     # print(pred_list)
     print(len(pred_list))
+    # 
     evaluator = TextMatchEvaluator()
     print('Samples: {}\nAccuracy: '.format(len(pred_list)))
     acc_dict, acc_list = evaluator.eval_pred_list(pred_list)
+
+    # evaluator = STVQAANLSEvaluator()
+    # evaluator.set_q(Q1)
+    # print('Samples: {}, Q1 Accuracy: {:.2f}%\n'.format(len(pred_list), 100. * evaluator.eval_pred_list(pred_list)))
+    # evaluator.set_q(Q2)
+    # print('Samples: {}, Q2 Accuracy: {:.2f}%\n'.format(len(pred_list), 100. * evaluator.eval_pred_list(pred_list)))
+    # evaluator.set_q(Q3)
+    # print('Samples: {}, Q3 Accuracy: {:.2f}%\n'.format(len(pred_list), 100. * evaluator.eval_pred_list(pred_list)))
+    # evaluator.set_q(Q4)
+    # print('Samples: {}, Q4 Accuracy: {:.2f}%\n'.format(len(pred_list), 100. * evaluator.eval_pred_list(pred_list)))
+    # evaluator.set_q(Q6)
+    # print('Samples: {}, Q6 Accuracy: {:.2f}%\n'.format(len(pred_list), 100. * evaluator.eval_pred_list(pred_list)))
+
     print(acc_dict)
     print(acc_list)
-    Q1 = "What is the fabric of the vase?"
-    Q2 = "What is the technique of the vase?"
-    Q3 = "What is the shape name of the vase?"
-    Q4 = "What is the provenance of the vase?"
-    Q5 = "What is the date of the vase?"
-    Q6 = "What is the attributed to of the vase?"
+   
 
     evaluator_date = DateAccuracyEvaluator()
     evaluator_date.set_q(Q5)
     acc_Q5 = evaluator_date.eval_pred_list(pred_list)
 
-    Q7 = "What is the decoration of the vase?"
-    Q8 = "What is the overall of the vase?"
+  
     evaluator_bleu = TextCapsBleu4Evaluator()
 
     evaluator_bleu.set_q(Q7)

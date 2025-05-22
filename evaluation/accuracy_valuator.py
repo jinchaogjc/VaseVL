@@ -51,6 +51,35 @@ class TextCapsBleu4Evaluator:
         return bleu1
 
 
+class STVQAANLSEvaluator:
+    def __init__(self):
+        import editdistance  # install with `pip install editdistance`
+
+        self.get_edit_distance = editdistance.eval
+
+    def set_q(self, Q):
+        self.Q = Q
+        
+    def get_anls(self, s1, s2):
+        s1 = s1.lower().strip()
+        s2 = s2.lower().strip()
+        iou = 1 - self.get_edit_distance(s1, s2) / max(len(s1), len(s2))
+        anls = iou if iou >= 0.5 else 0.0
+        return anls
+
+    def eval_pred_list(self, pred_list):
+        pred_scores = []
+        for entry in pred_list:
+            if (entry["question"] == self.Q):
+                anls = max(
+                    self.get_anls(entry["pred_answer"], gt) for gt in entry["gt_answers"]
+                )
+                pred_scores.append(anls)
+
+        accuracy = sum(pred_scores) / len(pred_scores)
+        return accuracy
+
+
 class TextMatchEvaluator:
     """Evaluates answer accuracy with text normalization and flexible matching.
     
