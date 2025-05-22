@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INFER_FILE="data/VaseVLDataset/VaseVL_Qwen2-VL-2B-Instruct_inference_answers.jsonl"
+INFER_FILE="esults/VaseVL_Qwen2-VL-2B-Instruct/VaseVL_Qwen2-VL-2B-Instruct_inference_answers.jsonl"
 
 python evaluation/vqa_inference.py \
     --model-path "Qwen/Qwen2-VL-2B-Instruct" \
