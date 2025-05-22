@@ -4,4 +4,4 @@ python evaluation/vqa_inference.py \
     --image-dir "data/VaseVLDataset/images" \
     --question-file "data/VaseVLDataset/vasevl_single_questions.json" \
     --output-file "data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_vasevl_dataset_inference_answers.jsonl" \
-    --batch-size 1
+    --batch-size 80
