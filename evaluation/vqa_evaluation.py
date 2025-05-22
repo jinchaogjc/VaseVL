@@ -2,15 +2,16 @@ import os
 import json
 import re
 from accuracy_valuator import TextMatchEvaluator, TextCapsBleu4Evaluator, DateAccuracyEvaluator
+import argparse
 
 
-def eval_single(annotation_file, result_file):
-    experiment_name = os.path.splitext(os.path.basename(result_file))[0]
+def eval_single(annotation_file, infer_file, result_file):
+    experiment_name = os.path.splitext(os.path.basename(infer_file))[0]
     print(experiment_name)
     annotations = json.load(open(annotation_file))
     
     annotations = {(annotation['id'], annotation['instruction'].lower()): annotation for annotation in annotations}
-    results = [json.loads(line) for line in open(result_file)]
+    results = [json.loads(line) for line in open(infer_file)]
 
     pred_list = []
     for result in results:
@@ -27,8 +28,13 @@ def eval_single(annotation_file, result_file):
     acc_dict, acc_list = evaluator.eval_pred_list(pred_list)
     print(acc_dict)
     print(acc_list)
-
+    Q1 = "What is the fabric of the vase?"
+    Q2 = "What is the technique of the vase?"
+    Q3 = "What is the shape name of the vase?"
+    Q4 = "What is the provenance of the vase?"
     Q5 = "What is the date of the vase?"
+    Q6 = "What is the attributed to of the vase?"
+
     evaluator_date = DateAccuracyEvaluator()
     evaluator_date.set_q(Q5)
     acc_Q5 = evaluator_date.eval_pred_list(pred_list)
@@ -45,23 +51,91 @@ def eval_single(annotation_file, result_file):
     bleu1_Q8 = evaluator_bleu.eval_pred_list(pred_list)
     print(bleu1_Q8)
 
-    print("Accuracy from Q1 to Q6: ", acc_list[0:6])
-    print("Accuracy from Q5: ", acc_Q5)
-    print("Bleu of Q7: ", bleu1_Q7)
-    print("Bleu_of Q8: ", bleu1_Q8)
+    # save results to result_file
+
+    # print("--------Q1 to Q1 results:----------")
+    # print(f"Q1:{Q1}, Accuracy: \t\t {acc_list[0]:.2%}")
+    # print(f"Q2:{Q2}, Accuracy: \t {acc_list[1]:.2%}")
+    # print(f"Q3:{Q3}, Accuracy: \t {acc_list[2]:.2%}")
+    # print(f"Q4:{Q4}, Accuracy: \t {acc_list[3]:.2%}")
+    # print(f"Q5:{Q5}, Accuracy: \t\t {acc_Q5:.2%}")
+    # print(f"Q6:{Q6}, Accuracy: \t {acc_list[4]:.2%}")
+    # print(f"Q7:{Q7}, Bleu: \t\t {bleu1_Q7:.2%}")
+    # print(f"Q8:{Q8}, Bleu: \t\t {bleu1_Q8:.2%}")
+
+    results = [
+        ("Q1", Q1, "Accuracy", acc_list[0]),
+        ("Q2", Q2, "Accuracy", acc_list[1]),
+        ("Q3", Q3, "Accuracy", acc_list[2]),
+        ("Q4", Q4, "Accuracy", acc_list[3]),
+        ("Q5", Q5, "Accuracy", acc_Q5),
+        ("Q6", Q6, "Accuracy", acc_list[4]),
+        ("Q7", Q7, "Bleu", bleu1_Q7),
+        ("Q8", Q8, "Bleu", bleu1_Q8)
+    ]
+
+    # 定义表格格式
+    header = f"{'Question':<50}\t{'Metric':<10}\t{'Value':>8}"
+    separator = "-"*100
+
+    # 生成表格内容
+    table_content = []
+    for qid, question, metric, value in results:
+        formatted_line = f"{qid}:{question:<45}\t{metric + ':':<10}\t{value*100:>7.2f}%"
+        table_content.append(formatted_line)
+
+    # 控制台输出
+    print(infer_file + "\n")
+    print("\nVASE ANALYSIS RESULTS:")
+    print(header)
+    print(separator)
+    print("\n".join(table_content))
+
+    # 文件输出
+    with open(result_file, "w") as f:
+        f.write(infer_file + "\n")
+        f.write("VASE ANALYSIS RESULTS\n")
+        f.write(header + "\n")
+        f.write(separator + "\n")
+        f.write("\n".join(table_content))
 
 
 if __name__ == "__main__":
-    # annotation_file = "../data/VaseVLDataset_sub/VaseVL_gt_answers.json"
-    # result_file = "../data/VaseVLDataset_sub/VaseVL_inference_answers.jsonl"
-    # result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
-    # result_file = "../data/VaseVLDataset_sub/VaseVL_Qwen2-VL-2B-Instruct_inference_answers.jsonl"
+    # annotation_file = "data/VaseVLDataset/vasevl_single_gt_answers.json"
+    # infer_file = "data/VaseVLDataset_sub/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
+    # result_file = "results/VaseVL_Qwen2.5-VL-3B-Instruct/VaseVL_Qwen2.5-VL-3B-Instruct_evaluation.txt"     
+
+
+    """Configure argument parser for inference parameters"""
+    infer_parser = argparse.ArgumentParser(description="Evaluation Script")
+   
+    # Required parameters
+    infer_parser.add_argument(
+        "--annotation-file",
+        type=str,
+        default="data/VaseVLDataset/vasevl_single_gt_answers.json",
+        help="Path to annotation file (default: %(default)s)"
+    )
     
-    annotation_file = "../data/VaseVLDataset/VaseVL_gt_answers_50.json"
-    # result_file = "../data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
-    # result_file = "../data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_mllm_demo_inference_answers.jsonl"
-    
-    result_file = "../data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_vasevl_dataset_inference_answers.jsonl"    
-    eval_single(annotation_file, result_file)
+    # Data configuration
+    infer_parser.add_argument(
+        "--infer-file",
+        type=str,
+        default="data/VaseVLDataset/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl",
+        help="Path to inference file (default: %(default)s)"
+    )
+
+    infer_parser.add_argument(
+        "--result-file",
+        type=str,
+        default="results/VaseVL_Qwen2.5-VL-3B-Instruct/VaseVL_Qwen2.5-VL-3B-Instruct_evaluation.txt",
+        help="Path to result file (default: %(default)s)"
+    )
+    args = infer_parser.parse_args()
+    print(args)
+
+    os.makedirs(os.path.dirname(args.result_file), exist_ok=True)                  
+
+    eval_single(args.annotation_file, args.infer_file, args.result_file)
 
     print("FINISHED.........")
