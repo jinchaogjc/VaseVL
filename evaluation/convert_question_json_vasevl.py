@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
-import os
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from utils import remove_tags
 
 
 def convert_json_to_question_list(input_data):
@@ -34,7 +36,7 @@ def convert_json_to_question_list(input_data):
                     },
                     {
                         "type": "text",
-                        "text": question
+                        "text": remove_tags(question)
                     }
                 ]
             }

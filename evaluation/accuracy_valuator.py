@@ -218,9 +218,9 @@ class TextMatchEvaluator:
         Q5 = "What is the date of the vase?"
         Q6 = "What is the attributed to of the vase?"
         Q7 = "What is the decoration of the vase?"
-        Q8 = "What is the overall of the vase?"
+        # Q8 = "What is the overall of the vase?"
 
-        question_ids = [Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8]
+        question_ids = [Q1, Q2, Q3, Q4, Q5, Q6, Q7]
         # Initialize counters
         self.correct_counts.clear()
         self.total_counts.clear()
@@ -246,20 +246,10 @@ class TextMatchEvaluator:
                 self.correct_counts[q_id] += 1
                 continue
 
-            
+            if (entry["question"] == Q5) or (entry["question"] == Q7):
+                continue
             
             gt_answers = self.extract_after_is(entry["gt_answers"])
-            if entry["question"] == Q5:
-                # Date, calcuate accuracy of Date seapartely
-                print("gt_answers: ", entry["gt_answers"], ", pred_answers: ", entry["pred_answer"])
-                pass
-                
-
-            if entry["question"] == Q7 or entry["question"] == Q8:
-                # Overall, calcuate accuracy of Overall seapartely
-                continue
-                
-            
             if self.is_correct(gt_answers, entry["pred_answer"]):
                 # correct += 1
                 self.correct_counts[q_id] += 1

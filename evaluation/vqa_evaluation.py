@@ -1,8 +1,10 @@
 import os
 import json
-import re
 from accuracy_valuator import TextMatchEvaluator, TextCapsBleu4Evaluator, DateAccuracyEvaluator, STVQAANLSEvaluator
 import argparse
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from utils import remove_tags
 
 
 def eval_single(annotation_file, infer_file, result_file):
@@ -14,7 +16,7 @@ def eval_single(annotation_file, infer_file, result_file):
     Q5 = "What is the date of the vase?"
     Q6 = "What is the attributed to of the vase?"
     Q7 = "What is the decoration of the vase?"
-    Q8 = "What is the overall of the vase?"
+    # Q8 = "What is the overall of the vase?"
 
 
     experiment_name = os.path.splitext(os.path.basename(infer_file))[0]
@@ -27,7 +29,7 @@ def eval_single(annotation_file, infer_file, result_file):
     pred_list = []
     for result in results:
         try:
-            annotation = annotations[(result['question_id'], result['instruction'].lower())]
+            annotation = annotations[(result['question_id'], remove_tags(result['instruction'].lower()))]
         except Exception:
             import pdb
             pdb.set_trace()
@@ -44,6 +46,8 @@ def eval_single(annotation_file, infer_file, result_file):
     print('Samples: {}\nAccuracy: '.format(len(pred_list)))
     acc_dict, acc_list = evaluator.eval_pred_list(pred_list)
 
+    # import pdb
+    # pdb.set_trace()
     # evaluator = STVQAANLSEvaluator()
     # evaluator.set_q(Q1)
     # print('Samples: {}, Q1 Accuracy: {:.2f}%\n'.format(len(pred_list), 100. * evaluator.eval_pred_list(pred_list)))
@@ -71,9 +75,9 @@ def eval_single(annotation_file, infer_file, result_file):
     bleu1_Q7 = evaluator_bleu.eval_pred_list(pred_list)
     print(bleu1_Q7)
 
-    evaluator_bleu.set_q(Q8)
-    bleu1_Q8 = evaluator_bleu.eval_pred_list(pred_list)
-    print(bleu1_Q8)
+    # evaluator_bleu.set_q(Q8)
+    # bleu1_Q8 = evaluator_bleu.eval_pred_list(pred_list)
+    # print(bleu1_Q8)
 
     # save results to result_file
 
@@ -87,6 +91,14 @@ def eval_single(annotation_file, infer_file, result_file):
     # print(f"Q7:{Q7}, Bleu: \t\t {bleu1_Q7:.2%}")
     # print(f"Q8:{Q8}, Bleu: \t\t {bleu1_Q8:.2%}")
 
+    Q1 = "What is the fabric of the vase?"
+    Q2 = "What is the technique of the vase?"
+    Q3 = "What is the shape name of the vase?"
+    Q4 = "What is the provenance of the vase?"
+    Q5 = "What is the date of the vase?"
+    Q6 = "What is the attributed to of the vase?"
+    Q7 = "What is the decoration of the vase?"
+
     results = [
         ("Q1", Q1, "Accuracy", acc_list[0]),
         ("Q2", Q2, "Accuracy", acc_list[1]),
@@ -95,7 +107,7 @@ def eval_single(annotation_file, infer_file, result_file):
         ("Q5", Q5, "Accuracy", acc_Q5),
         ("Q6", Q6, "Accuracy", acc_list[4]),
         ("Q7", Q7, "Bleu", bleu1_Q7),
-        ("Q8", Q8, "Bleu", bleu1_Q8)
+        # ("Q8", Q8, "Bleu", bleu1_Q8)
     ]
 
     # 定义表格格式
