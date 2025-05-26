@@ -56,7 +56,7 @@ def transform_conversation_data(input_data):
         new_entry = {
             "id": entry["id"],
             "images": entry["images"],
-            "instruction": remove_tags(human_message),
+            "instruction": human_message,
             "output": gpt_response,
             "type": "qa"
         }

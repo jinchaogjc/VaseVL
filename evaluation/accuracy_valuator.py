@@ -71,16 +71,17 @@ class STVQAANLSEvaluator:
         pred_scores = []
         for entry in pred_list:
             if (entry["question"] == self.Q):
-                anls = max(
-                    self.get_anls(entry["pred_answer"], gt) for gt in entry["gt_answers"]
-                )
+                # anls = max(
+                #     self.get_anls(entry["pred_answer"], gt) for gt in entry["gt_answers"]
+                # )
+                anls = self.get_anls(entry["pred_answer"], entry["gt_answers"])
                 pred_scores.append(anls)
 
         accuracy = sum(pred_scores) / len(pred_scores)
         return accuracy
 
 
-class TextMatchEvaluator:
+class TextMatchEvaluatorDelete:
     """Evaluates answer accuracy with text normalization and flexible matching.
     
     Features:
@@ -263,8 +264,8 @@ class TextMatchEvaluator:
 
 class DateAccuracyEvaluator:
     def __init__(self):
-        self.date_pattern = r"(\b\d{3,4}\s*(BCE?|AD)?\b)(\s*to\s*|\s*-\s*)(\b\d{3,4}\s*(BCE?|AD)?\b)"
-    
+        # self.date_pattern = r"(\b\d{3,4}\s*(BCE?|AD)?\b)(\s*to\s*|\s*-\s*)(\b\d{3,4}\s*(BCE?|AD)?\b)"
+        self.date_pattern = r'(-?\d+)(?:\s*(BC|B\.C\.|BCE))?|(\d+)'
     def _convert_number(self, value: str) -> int:
         """
         Convert a numeric string with optional era notation (BC/BCE/AD/CE) to integer.
@@ -289,7 +290,7 @@ class DateAccuracyEvaluator:
         
         # Identify era markers
         era_multiplier = 1
-        for era in ['BC', 'BCE']:
+        for era in ['BC', 'BCE', 'B.C.', 'BC.']:
             if era in cleaned:
                 cleaned = cleaned.replace(era, '')
                 era_multiplier = -1
@@ -302,11 +303,58 @@ class DateAccuracyEvaluator:
             
         return int(match.group()) * era_multiplier
     
+    def _extract_dates(self, text):
+        """
+        Extract and process dates from text containing various date formats.
+        Handles BC/AD conversion, ranges, and individual dates.
+        Returns tuple of (start_date, end_date)
+        """
+        dates = []
+        text = text.upper()  # Normalize for case-insensitive matching
+
+        # First pass: Capture individual numbers with BC context
+        pattern = r'(-?\d+)(?:\s*(BC|B\.C\.|BCE))?|(\d+)'
+        for match in re.finditer(pattern, text):
+            if match.group(1):
+                num = int(match.group(1))
+                if match.group(2) and num > 0:
+                    num = -num
+                dates.append(num)
+            elif match.group(3):
+                dates.append(int(match.group(3)))
+
+        # Second pass: Find and correct date ranges with BC context
+        range_pattern = r'(\d+)\s*[-to]+\s*(\d+)\s*(?:BC|B\.C\.|BCE)\b'
+        for match in re.finditer(range_pattern, text):
+            start = -int(match.group(1))
+            end = -int(match.group(2))
+            
+            # Remove original positive values if present
+            try:
+                dates.remove(int(match.group(1)))
+            except ValueError:
+                pass
+            try:
+                dates.remove(int(match.group(2)))
+            except ValueError:
+                pass
+            
+            dates.extend([start, end])
+
+        # Remove duplicates and sort
+        unique_dates = sorted(list(set(dates)))
+        
+        if not unique_dates:
+            return [None, None]
+        
+        return [min(unique_dates), max(unique_dates)]
+
+
     def _extract_date_range(self, text):
         """使用正则表达式提取日期范围"""
         matches = re.findall(self.date_pattern, text, re.IGNORECASE)
-        if not matches:
-            return None
+        # if not matches:
+        #     return None
             
         try:
             # 转换纪元标识为负数
@@ -342,20 +390,19 @@ class DateAccuracyEvaluator:
         for entry in pred_list:
             if (entry["question"] == self.Q):
                 # 提取真实日期范围
-                gt_dates = [self._extract_date_range(gt) for gt in entry["gt_answers"]]
-                gt_dates = [d for d in gt_dates if d]
+                gt_dates = self._extract_dates(entry["gt_answers"])
                 
-                if not gt_dates:
-                    scores.append(1.0 if "not available" in entry["gt_answers"] else 0.0)
+                if None in gt_dates:
+                    # scores.append(1.0 if "not available" in entry["gt_answers"] else 0.0)
                     continue
-                    
+                
                 # 提取预测日期
-                pred_range = self._extract_date_range(entry["pred_answer"])
-                if not pred_range:
+                pred_range = self._extract_dates(entry["pred_answer"])
+                if None in pred_range:
                     scores.append(0.0)
                     continue
                     
-                # 计算最高匹配度
-                max_score = max(self._compare_ranges(gt, pred_range) for gt in gt_dates)
-                scores.append(1.0 if max_score >= 0.5 else 0.0)  
+                # 计算匹配度
+                max_score = self._compare_ranges(gt_dates, pred_range)
+                scores.append(max_score)  
         return sum(scores) / len(scores)

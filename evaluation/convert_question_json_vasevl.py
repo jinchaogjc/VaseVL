@@ -36,7 +36,7 @@ def convert_json_to_question_list(input_data):
                     },
                     {
                         "type": "text",
-                        "text": remove_tags(question)
+                        "text": question
                     }
                 ]
             }
