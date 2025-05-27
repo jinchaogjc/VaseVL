@@ -2,10 +2,10 @@
 
 INFER_FILE="results/VaseVL_Qwen2.5-VL-3B-Instruct/VaseVL_Qwen2.5-VL-3B-Instruct_inference_answers.jsonl"
 python evaluation/vqa_inference.py \
-    --model-path "Qwen/Qwen2.5-VL-3B-Instruct" \
-    --question-file "data/VaseVLDataset/vasevl_single_questions.json" \
-    --output-file $INFER_FILE \
-    --batch-size 80
+   --model-path "Qwen/Qwen2.5-VL-3B-Instruct" \
+   --question-file "data/VaseVLDataset/vasevl_single_questions.json" \
+   --output-file $INFER_FILE \
+   --batch-size 80
 
 
 # --annotation-file use_default_annotation_file

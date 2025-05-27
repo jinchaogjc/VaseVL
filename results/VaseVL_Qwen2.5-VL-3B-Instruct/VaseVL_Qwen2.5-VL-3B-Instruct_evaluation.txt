@@ -2,10 +2,10 @@ results/VaseVL_Qwen2.5-VL-3B-Instruct/VaseVL_Qwen2.5-VL-3B-Instruct_inference_an
 VASE ANALYSIS RESULTS
 Question                                          	Metric    	   Value
 ----------------------------------------------------------------------------------------------------
-Q1:What is the fabric of the vase?              	Accuracy: 	   0.00%
+Q1:What is the fabric of the vase?              	Accuracy: 	   0.09%
 Q2:What is the technique of the vase?           	Accuracy: 	   0.00%
-Q3:What is the shape name of the vase?          	Accuracy: 	  19.52%
-Q4:What is the provenance of the vase?          	Accuracy: 	   0.00%
-Q5:What is the date of the vase?                	Accuracy: 	  11.11%
-Q6:What is the attribution of the vase?         	Accuracy: 	   0.00%
-Q7:What is the decoration of the vase?          	Bleu:     	   1.52%
+Q3:What is the shape name of the vase?          	Accuracy: 	  14.43%
+Q4:What is the provenance of the vase?          	Accuracy: 	   0.77%
+Q5:What is the date of the vase?                	Accuracy: 	  19.93%
+Q6:What is the attribution of the vase?         	Accuracy: 	   0.70%
+Q7:What is the decoration of the vase?          	Bleu:     	   1.58%
