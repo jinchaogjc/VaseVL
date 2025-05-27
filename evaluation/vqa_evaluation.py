@@ -29,7 +29,10 @@ def eval_single(annotation_file, infer_file, result_file):
     pred_list = []
     for result in results:
         try:
-            annotation = annotations[(result['question_id'], result['instruction'].lower())]
+            if "<image>\n " in result['instruction'].lower():
+                annotation = annotations[(result['question_id'], result['instruction'].lower())]
+            else:
+                annotation = annotations[(result['question_id'], "<image>\n "+result['instruction'].lower())]
         except Exception:
             import pdb
             pdb.set_trace()
@@ -98,6 +101,13 @@ def eval_single(annotation_file, infer_file, result_file):
     # print(f"Q7:{Q7}, Bleu: \t\t {bleu1_Q7:.2%}")
     # print(f"Q8:{Q8}, Bleu: \t\t {bleu1_Q8:.2%}")
 
+    Q1 = "What is the fabric of the vase?"
+    Q2 = "What is the technique of the vase?"
+    Q3 = "What is the shape name of the vase?"
+    Q4 = "What is the provenance of the vase?"
+    Q5 = "What is the date of the vase?"
+    Q6 = "What is the attribution of the vase?"
+    Q7 = "What is the decoration of the vase?"
 
     results = [
         ("Q1", Q1, "Accuracy", acc_list[0]),

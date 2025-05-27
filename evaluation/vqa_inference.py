@@ -1,5 +1,5 @@
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
-from transformers import Qwen2VLForConditionalGeneration
+from transformers import Qwen2VLForConditionalGeneration, LlavaOnevisionForConditionalGeneration, LlavaForConditionalGeneration, LlavaNextForConditionalGeneration
 # from evaluate import load
 import json
 import os
@@ -11,6 +11,7 @@ import torch
 from qwen_vl_utils import process_vision_info
 from pathlib import Path
 import argparse
+from transformers import LlavaNextProcessor
 
 
 if platform.system() == 'Darwin' and torch.backends.mps.is_available():
@@ -117,12 +118,22 @@ def batch_process(images, texts, device, model, processor, batch_size=2):
         batch_images = images[i:i+batch_size]
         batch_texts = texts[i:i+batch_size]
         
+        # inputs = processor(
+        #     text=batch_texts,
+        #     images=batch_images,
+        #     padding=True,            
+        #     return_tensors="pt"
+        # ).to(device)
+
         inputs = processor(
             text=batch_texts,
             images=batch_images,
-            padding=True,
+            padding="max_length",            
+            max_length=128,
             return_tensors="pt"
         ).to(device)
+
+        
         
         # generated_ids = model.generate(**inputs, max_new_tokens=128)
         # outputs = processor.batch_decode(generated_ids, skip_special_tokens=True)
@@ -135,6 +146,7 @@ def batch_process(images, texts, device, model, processor, batch_size=2):
         output_texts = processor.batch_decode(
             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
+        print(output_texts)
         all_outputs.extend(output_texts)
     return all_outputs
 
@@ -228,17 +240,32 @@ if __name__=="__main__":
     args = infer_parser.parse_args()
     print(args)
 
+    
     if ("Qwen2.5" in args.model_path) or ("qwen2_5" in args.model_path):
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             args.model_path, 
             torch_dtype="auto", 
-            device_map=device_map
+            device_map=device_map,
         )
-    elif args.model_path.startswith("Qwen/Qwen2-"):
+    elif (args.model_path.startswith("Qwen/Qwen2-")):
         # default: Load the model on the available device(s)
         model = Qwen2VLForConditionalGeneration.from_pretrained(
             args.model_path, torch_dtype="auto", device_map="auto"
         )
+    elif ("llava-onevision-qwen2-0.5b-ov-hf" in args.model_path):
+        
+          model = LlavaOnevisionForConditionalGeneration.from_pretrained(
+            args.model_path, torch_dtype="auto", device_map="auto"
+            )
+    elif ("llava-1.5-7b-hf" in args.model_path):
+        model = LlavaForConditionalGeneration.from_pretrained(
+            args.model_path, torch_dtype="auto", device_map="auto"
+        )
+    elif ():
+        model = LlavaNextForConditionalGeneration.from_pretrained(
+                args.model_path, torch_dtype="auto", device_map="auto"
+            )
+        
     else:
         print(args.model_path, " model not supported.")
     
@@ -246,10 +273,19 @@ if __name__=="__main__":
     # min_pixels = 256*28*28
     # max_pixels = 1280*28*28
     # processor = AutoProcessor.from_pretrained(args.model_path, min_pixels=min_pixels, max_pixels=max_pixels)
-
-    processor = AutoProcessor.from_pretrained(
-        args.model_path,
-        use_fast=True)
+    if ("llava-v1.6-vicuna-7b-hf" in args.model_path):
+        processor = LlavaNextProcessor.from_pretrained(
+            args.model_path,
+            use_fast=True)
+    else:
+        # processor = AutoProcessor.from_pretrained(
+        #     args.model_path,
+        #     use_fast=True)
+        processor = AutoProcessor.from_pretrained(
+            args.model_path,
+            use_fast=True,
+            padding_side='left')
+    
 
     # messages = prepare_message_example()
     messages = prepare_message(args.question_file)
