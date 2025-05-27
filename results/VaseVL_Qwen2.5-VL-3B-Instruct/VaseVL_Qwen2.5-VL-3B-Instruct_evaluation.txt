@@ -4,9 +4,8 @@ Question                                          	Metric    	   Value
 ----------------------------------------------------------------------------------------------------
 Q1:What is the fabric of the vase?              	Accuracy: 	   0.00%
 Q2:What is the technique of the vase?           	Accuracy: 	   0.00%
-Q3:What is the shape name of the vase?          	Accuracy: 	   0.00%
+Q3:What is the shape name of the vase?          	Accuracy: 	  19.52%
 Q4:What is the provenance of the vase?          	Accuracy: 	   0.00%
-Q5:What is the date of the vase?                	Accuracy: 	   0.00%
-Q6:What is the attributed to of the vase?       	Accuracy: 	   0.00%
-Q7:What is the decoration of the vase?          	Bleu:     	   2.56%
-Q8:What is the overall of the vase?             	Bleu:     	   1.35%
+Q5:What is the date of the vase?                	Accuracy: 	  11.11%
+Q6:What is the attribution of the vase?         	Accuracy: 	   0.00%
+Q7:What is the decoration of the vase?          	Bleu:     	   1.52%
