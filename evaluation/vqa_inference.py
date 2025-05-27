@@ -96,7 +96,6 @@ def prepare_message_example():
         }
     ]
     # Combine messages for batch processing
-    import json
 
     # Define a Python list
     data_list = [messages2, messages3]
@@ -146,7 +145,7 @@ def batch_process(images, texts, device, model, processor, batch_size=2):
         output_texts = processor.batch_decode(
             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
-        print(output_texts)
+        # print(output_texts)
         all_outputs.extend(output_texts)
     return all_outputs
 
@@ -253,9 +252,11 @@ if __name__=="__main__":
             args.model_path, torch_dtype="auto", device_map="auto"
         )
     elif ("llava-onevision-qwen2-0.5b-ov-hf" in args.model_path):
-        
           model = LlavaOnevisionForConditionalGeneration.from_pretrained(
-            args.model_path, torch_dtype="auto", device_map="auto"
+            args.model_path, 
+            torch_dtype=torch.float16, 
+            low_cpu_mem_usage=True,
+            device_map=device_map
             )
     elif ("llava-1.5-7b-hf" in args.model_path):
         model = LlavaForConditionalGeneration.from_pretrained(

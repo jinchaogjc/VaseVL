@@ -6,7 +6,6 @@ python evaluation/vqa_inference.py \
     --question-file "data/VaseVLDataset/vasevl_single_questions.json" \
     --output-file $INFER_FILE \
     --batch-size 80
-saves/qwen2_5vl_7b_full_sft_vasevl_dataset/full/sft
 
 # --annotation-file use_default_annotation_file
 python evaluation/vqa_evaluation.py \

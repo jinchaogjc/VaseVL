@@ -180,4 +180,4 @@ local/
 .cache
 results/
 .nfs*
-results/VaseVL_Qwen2.5-VL-3B-Instruct_SFT/
+results/VaseVL_Qwen2.5-VL-3B-Instruct/
