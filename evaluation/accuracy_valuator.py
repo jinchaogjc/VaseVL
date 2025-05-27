@@ -4,6 +4,7 @@ from difflib import SequenceMatcher
 from collections import defaultdict
 import re
 from dateutil.parser import parse
+import editdistance
 
 
 class TextCapsBleu4Evaluator:
@@ -52,20 +53,34 @@ class TextCapsBleu4Evaluator:
 
 
 class STVQAANLSEvaluator:
-    def __init__(self):
+    def __init__(self, threshold=0.5):
         import editdistance  # install with `pip install editdistance`
 
         self.get_edit_distance = editdistance.eval
+        self.threshold = threshold  # Threshold for ANLS similarity
 
     def set_q(self, Q):
         self.Q = Q
         
-    def get_anls(self, s1, s2):
-        s1 = s1.lower().strip()
-        s2 = s2.lower().strip()
-        iou = 1 - self.get_edit_distance(s1, s2) / max(len(s1), len(s2))
-        anls = iou if iou >= 0.5 else 0.0
-        return anls
+    # def get_anls(self, s1, s2):
+    #     s1 = s1.lower().strip()
+    #     s2 = s2.lower().strip()
+    #     iou = 1 - self.get_edit_distance(s1, s2) / max(len(s1), len(s2))
+    #     anls = iou if iou >= 0.5 else 0.0
+    #     return anls
+
+
+    def exact_match(self, pred, gt):
+        """Returns 1 if the prediction exactly matches the ground truth, else 0."""
+        return 1.0 if pred.strip().lower() == gt.strip().lower() else 0.0
+
+
+    def get_anls(self, pred, gt):
+        """Calculates ANLS (soft accuracy) between prediction and ground truth."""
+        pred, gt = pred.lower().strip(), gt.lower().strip()
+        dist = editdistance.eval(pred, gt)
+        iou = 1 - dist / max(len(pred), len(gt))
+        return iou if iou >= self.threshold else 0.0
 
     def eval_pred_list(self, pred_list):
         pred_scores = []
@@ -80,6 +95,52 @@ class STVQAANLSEvaluator:
         accuracy = sum(pred_scores) / len(pred_scores)
         return accuracy
 
+
+class VaseVQADateEvaluator:
+
+    def _extract_date_range(self, text):
+        """Extracts a date range (e.g., '-450 to -400') from a given text."""
+        match = re.search(r"(-?\d+)\s*to\s*(-?\d+)", text)
+        if match:
+            start, end = int(match.group(1)), int(match.group(2))
+            return start, end
+        return None
+    
+    def set_q(self, Q):
+        self.Q = Q
+
+    def _is_date_correct(self, pred_date, gt_date):
+        """Checks if the predicted date range overlaps with the ground truth range."""
+        if not pred_date or not gt_date:
+            return False  # If no valid date found, prediction is incorrect.
+        
+        pred_start, pred_end = pred_date
+        gt_start, gt_end = gt_date
+        
+        return not (pred_end < gt_start or pred_start > gt_end)  # Overlap check
+
+    def eval_pred_list(self, data_list):
+        """
+        Evaluates the accuracy of date predictions.
+        :param data_list: List of dictionaries with keys 'question', 'pred_answer', and 'gt_answer'
+        :return: Accuracy as a float (0.0 - 1.0)
+        """
+        correct_count = 0
+        total_count = 0
+
+        # import pdb
+        for entry in tqdm(data_list):
+            if (entry["question"] == self.Q):
+                
+                pred_date = self._extract_date_range(entry["pred_answer"])
+                gt_date = self._extract_date_range(entry["gt_answers"])
+                
+                if self._is_date_correct(pred_date, gt_date):
+                    correct_count += 1
+                total_count += 1
+
+        return correct_count / total_count if total_count > 0 else 0.0  # Avoid division by zero
+    
 
 class TextMatchEvaluatorDelete:
     """Evaluates answer accuracy with text normalization and flexible matching.
