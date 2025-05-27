@@ -28,11 +28,13 @@ def eval_single(annotation_file, infer_file, result_file):
 
     pred_list = []
     for result in results:
+        # try:
+        #     if "<image>\n " in result['instruction'].lower():
+        #         annotation = annotations[(result['question_id'], result['instruction'].lower())]
+        #     else:
+        #         annotation = annotations[(result['question_id'], "<image>\n "+result['instruction'].lower())]
         try:
-            if "<image>\n " in result['instruction'].lower():
-                annotation = annotations[(result['question_id'], result['instruction'].lower())]
-            else:
-                annotation = annotations[(result['question_id'], "<image>\n "+result['instruction'].lower())]
+            annotation = annotations[(result['question_id'], result['instruction'].lower())]
         except Exception:
             import pdb
             pdb.set_trace()

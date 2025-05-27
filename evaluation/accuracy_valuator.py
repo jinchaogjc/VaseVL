@@ -92,7 +92,10 @@ class STVQAANLSEvaluator:
                 anls = self.get_anls(entry["pred_answer"], entry["gt_answers"])
                 pred_scores.append(anls)
 
-        accuracy = sum(pred_scores) / len(pred_scores)
+        if len(pred_scores) == 0: # Avoid division by zero
+            accuracy = 0.0
+        else:
+            accuracy = sum(pred_scores) / len(pred_scores) 
         return accuracy
 
 
@@ -139,188 +142,7 @@ class VaseVQADateEvaluator:
                     correct_count += 1
                 total_count += 1
 
-        return correct_count / total_count if total_count > 0 else 0.0  # Avoid division by zero
-    
-
-class TextMatchEvaluatorDelete:
-    """Evaluates answer accuracy with text normalization and flexible matching.
-    
-    Features:
-    - Case normalization
-    - Punctuation removal
-    - Whitespace cleaning
-    - Substring matching
-    - Partial similarity threshold
-    """
-    
-    def __init__(self, similarity_threshold: float = 0.8):
-        """
-        Args:
-            similarity_threshold: Minimum similarity score (0-1) for partial matches
-        """
-        self.similarity_threshold = similarity_threshold
-        """
-        Args:
-            question_ids: List of question identifiers (Q1-Q8)
-        """
-        # self.question_ids = [f"Q{i}" for i in range(1, 9)]
-        # print(self.question_ids)
-        self.correct_counts = defaultdict(int)
-        self.total_counts = defaultdict(int)
-
-
-    def normalize_text(self, text: str) -> str:
-        """Standardizes text for comparison"""
-        # Case folding and whitespace normalization
-        text = text.lower().strip()
-        # Remove all punctuation except word boundaries
-        text = re.sub(r'[^\w\s]', '', text)
-        # Collapse multiple spaces
-        return re.sub(r'\s+', ' ', text)
-
-    def text_similarity(self, a: str, b: str) -> float:
-        """Calculates similarity ratio between two strings"""
-        return SequenceMatcher(None, a, b).ratio()
-
-    def is_correct(self, gt: str, pred: str) -> bool:
-        """Determines if prediction matches ground truth with flexible rules"""
-        norm_gt = self.normalize_text(gt)
-        norm_pred = self.normalize_text(pred)
-        
-        # Direct match after normalization
-        if norm_gt == norm_pred:
-            return True
-            
-        # Substring containment
-        if norm_gt in norm_pred or norm_pred in norm_gt:
-            return True
-            
-        # Partial similarity match
-        if self.text_similarity(norm_gt, norm_pred) >= self.similarity_threshold:
-            return True
-            
-        return False
-
-    def extract_after_is(self, text: str, keyword: str = "is") -> str:
-        """
-        Extracts text after specified keyword with normalization.
-        
-        Args:
-            text: Input string containing the answer
-            keyword: Target keyword to search for (default: "is")
-            
-        Returns:
-            Extracted text after keyword, or empty string if not found
-        
-        Examples:
-            >>> extract_after_is("The vase is ATHENIAN.")
-            'athenian'
-        """
-        # Split text into parts after first occurrence of keyword [8,9](@ref)
-        parts = text.lower().partition(keyword.lower())
-        
-        if not parts[1]:  # Keyword not found
-            return ""
-        
-        # Clean and normalize the result [5,6](@ref)
-        extracted = parts[2].strip(' .,;:\t\n')  # Remove surrounding whitespace/punctuation
-        return extracted.split(maxsplit=1)[0] if extracted else ""
-
-
-    def _process_gt_answer(self, gt_text: str) -> str:
-        """Extracts key information from ground truth answer"""
-        return self.extract_after_is(gt_text.lower())
-
-    def _validate_entry(self, entry: dict) -> bool:
-        """Validates entry structure"""
-        required_keys = ['question', 'gt_answers', 'pred_answer']
-        return all(key in entry for key in required_keys)
-
-    @staticmethod
-    def extract_after_is(text: str) -> str:
-        """Extracts text after 'is' with normalization"""
-        parts = text.lower().partition('is')
-        return parts[2].strip(' .;:,').split()[0] if parts[2] else ''
-
-    @staticmethod
-    def is_correct(gt: str, pred: str) -> bool:
-        """Flexible text matching with normalization"""
-        return gt in pred or pred in gt
-
-    def _compute_final_accuracy(self, question_ids) -> dict:
-        """Computes accuracy percentages with division guard"""
-        accuracy = {}
-        accuracy_list = []
-        # count = 1
-        for q in question_ids:
-            total = self.total_counts.get(q, 0)
-            correct = self.correct_counts.get(q, 0)
-            acc = correct / total if total > 0 else 0.0
-            accuracy[q] = acc
-            accuracy_list.append(acc)
-        return accuracy, accuracy_list
-    
-    def eval_pred_list(self, pred_list: list[str]) -> float:
-        """Main method to calculate per-question accuracy
-        
-        Args:
-            pred_list: List of prediction entries with:
-                - question: Question identifier (Q1-Q8)
-                - gt_answers: Ground truth text
-                - pred_answer: Model prediction text
-                
-        Returns:
-            Dictionary of accuracies for each question
-        """
-
-        Q1 = "What is the fabric of the vase?"
-        Q2 = "What is the technique of the vase?"
-        Q3 = "What is the shape name of the vase?"
-        Q4 = "What is the provenance of the vase?"
-        Q5 = "What is the date of the vase?"
-        Q6 = "What is the attributed to of the vase?"
-        Q7 = "What is the decoration of the vase?"
-        # Q8 = "What is the overall of the vase?"
-
-        question_ids = [Q1, Q2, Q3, Q4, Q5, Q6, Q7]
-        # Initialize counters
-        self.correct_counts.clear()
-        self.total_counts.clear()
-        
-        
-        for entry in tqdm(pred_list):
-            if not self._validate_entry(entry):
-                continue
-
-            q_id = entry['question']
-            if q_id not in question_ids:
-                continue
-            
-            # Update total count for this question
-            self.total_counts[q_id] += 1
-
-            # Handle empty predictions
-            if not entry['pred_answer'].strip():
-                continue
-
-            # Check for special "not available" case
-            if "not available" in entry['gt_answers'].lower():
-                self.correct_counts[q_id] += 1
-                continue
-
-            if (entry["question"] == Q5) or (entry["question"] == Q7):
-                continue
-            
-            gt_answers = self.extract_after_is(entry["gt_answers"])
-            if self.is_correct(gt_answers, entry["pred_answer"]):
-                # correct += 1
-                self.correct_counts[q_id] += 1
-            
-
-        # Calculate final accuracy scores
-        return self._compute_final_accuracy(question_ids)
-        # return correct / len(pred_list)
-    
+        return correct_count / total_count if total_count > 0 else 0.0  # Avoid division by zero 
 
 
 class DateAccuracyEvaluator:
@@ -466,4 +288,7 @@ class DateAccuracyEvaluator:
                 # 计算匹配度
                 max_score = self._compare_ranges(gt_dates, pred_range)
                 scores.append(max_score)  
-        return sum(scores) / len(scores)
+        if len(scores) == 0:
+            return 0.0
+        else:
+            return sum(scores) / len(scores)
