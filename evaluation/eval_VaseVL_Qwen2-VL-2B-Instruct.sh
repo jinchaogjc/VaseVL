@@ -3,7 +3,7 @@
 INFER_FILE="results/VaseVL_Qwen2-VL-2B-Instruct/VaseVL_Qwen2-VL-2B-Instruct_inference_answers.jsonl"
 
 python evaluation/vqa_inference.py \
-    --model-path "Qwen/Qwen2-VL-2B-Instruct" \
+    --model-path "/inspire/hdd/ws-ba572160-47f8-4ca1-984e-d6bcdeb95dbb/a100-maybe/wangbaode/NIPS_2025/Codes/models/Qwen2-VL-2B-Instruct" \
     --question-file "data/VaseVLDataset/vasevl_single_questions.json" \
     --output-file $INFER_FILE \
     --batch-size 80
