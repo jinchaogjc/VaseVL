@@ -25,8 +25,8 @@ class TextCapsBleu4Evaluator:
             raise
 
         self.tokenizer = PTBTokenizer()
-        # self.scorer = Bleu(4)
-        self.scorer = Bleu(1)
+        self.scorer = Bleu(4)
+        # self.scorer = Bleu(1)
 
     def set_q(self, Q):
         self.Q = Q
@@ -45,11 +45,10 @@ class TextCapsBleu4Evaluator:
         res = self.tokenizer.tokenize(res)
         score, _ = self.scorer.compute_score(gts, res)
 
-        
         bleu1 = score[0]  # score is (Bleu-1, Bleu-2, Bleu-3, Bleu-4)
         # print("score:", score)
         # print("bleu:", bleu1)
-        return bleu1
+        return bleu1, score
 
 
 class STVQAANLSEvaluator:

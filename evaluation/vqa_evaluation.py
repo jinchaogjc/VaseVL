@@ -84,7 +84,7 @@ def eval_single(annotation_file, infer_file, result_file):
   
     evaluator_bleu = TextCapsBleu4Evaluator()
     evaluator_bleu.set_q(Q7)
-    bleu1_Q7 = evaluator_bleu.eval_pred_list(pred_list)
+    bleu1_Q7, score = evaluator_bleu.eval_pred_list(pred_list)
     print(bleu1_Q7)
 
     # evaluator_bleu.set_q(Q8)
@@ -118,8 +118,11 @@ def eval_single(annotation_file, infer_file, result_file):
         ("Q4", Q4, "Accuracy", acc_list[3]),
         ("Q5", Q5, "Accuracy", acc_Q5),
         ("Q6", Q6, "Accuracy", acc_list[4]),
-        ("Q7", Q7, "Bleu", bleu1_Q7),
+        ("Q7", Q7, "Bleu@1", bleu1_Q7),
         # ("Q8", Q8, "Bleu", bleu1_Q8)
+        ("Q7", Q7, "Bleu@2", score[1]),
+        ("Q7", Q7, "Bleu@3", score[2]),
+        ("Q7", Q7, "Bleu@4", score[3]),
     ]
 
     # 定义表格格式
