@@ -36,9 +36,10 @@ def eval_single(annotation_file, infer_file, result_file):
         try:
             annotation = annotations[(result['question_id'], result['instruction'].lower())]
         except Exception:
-            import pdb
-            pdb.set_trace()
-            pass
+            # import pdb
+            # pdb.set_trace()
+            print("check <image> tag in question or question id not found.")
+            return
         pred_list.append({
             "pred_answer": result['output'],
             "gt_answers": annotation['output'],

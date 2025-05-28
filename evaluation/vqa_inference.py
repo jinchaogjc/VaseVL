@@ -98,7 +98,8 @@ def prepare_message_example():
     # Combine messages for batch processing
 
     # Define a Python list
-    data_list = [messages2, messages3]
+    # data_list = [messages2, messages3]
+    data_list = [messages3, messages3]
     return data_list
 
 
@@ -111,26 +112,27 @@ def prepare_message(question_file):
     return data_list
 
 
-def batch_process(images, texts, device, model, processor, batch_size=2):
+def batch_process(images, texts, device, model, processor, batch_size=2, model_path=""):
     all_outputs = []
     for i in tqdm(range(0, len(images), batch_size)):
         batch_images = images[i:i+batch_size]
         batch_texts = texts[i:i+batch_size]
         
-        # inputs = processor(
-        #     text=batch_texts,
-        #     images=batch_images,
-        #     padding=True,            
-        #     return_tensors="pt"
-        # ).to(device)
-
-        inputs = processor(
-            text=batch_texts,
-            images=batch_images,
-            padding="max_length",            
-            max_length=128,
-            return_tensors="pt"
-        ).to(device)
+        if ("llava-1.5-7b-hf" in model_path):
+            inputs = processor(
+                text=batch_texts,
+                images=batch_images,
+                return_tensors="pt"
+            ).to(device)
+        else:
+            batch_texts = texts[i:i+batch_size]
+            inputs = processor(
+                text=batch_texts,
+                images=batch_images,
+                padding="max_length",            
+                max_length=128,
+                return_tensors="pt"
+            ).to(device)
 
         
         
@@ -239,7 +241,8 @@ if __name__=="__main__":
     args = infer_parser.parse_args()
     print(args)
 
-    
+    os.makedirs(os.path.dirname(args.output_file), exist_ok=True) 
+
     if ("Qwen2.5" in args.model_path) or ("qwen2_5" in args.model_path):
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             args.model_path, 
@@ -260,7 +263,7 @@ if __name__=="__main__":
             )
     elif ("llava-1.5-7b-hf" in args.model_path):
         model = LlavaForConditionalGeneration.from_pretrained(
-            args.model_path, torch_dtype="auto", device_map="auto"
+            args.model_path, torch_dtype=torch.float16, device_map=device_map, low_cpu_mem_usage=True
         )
     elif ():
         model = LlavaNextForConditionalGeneration.from_pretrained(
@@ -278,6 +281,9 @@ if __name__=="__main__":
         processor = LlavaNextProcessor.from_pretrained(
             args.model_path,
             use_fast=True)
+    elif ("llava-1.5-7b-hf" in args.model_path):
+          processor = AutoProcessor.from_pretrained(
+            args.model_path)
     else:
         # processor = AutoProcessor.from_pretrained(
         #     args.model_path,
@@ -291,15 +297,21 @@ if __name__=="__main__":
     # messages = prepare_message_example()
     messages = prepare_message(args.question_file)
 
-    
-    texts = [
-        processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
-        for msg in messages
-    ]
+    if ("llava-1.5-7b-hf" in args.model_path):
+        # texts = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        texts = [
+            processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+            for msg in messages
+        ]
+    else:
+        texts = [
+            processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+            for msg in messages
+        ]
    
     image_inputs, video_inputs = process_vision_info(messages)
     print("Eval batch size: ", args.batch_size)
-    pred_answer = batch_process(image_inputs, texts, device, model, processor, batch_size=args.batch_size)
+    pred_answer = batch_process(image_inputs, texts, device, model, processor, batch_size=args.batch_size, model_path=args.model_path)
     print(pred_answer)
 
     # save results to .jsonl
