@@ -120,9 +120,9 @@ def eval_single(annotation_file, infer_file, result_file):
         ("Q6", Q6, "Accuracy", acc_list[4]),
         ("Q7", Q7, "Bleu@1", bleu1_Q7),
         # ("Q8", Q8, "Bleu", bleu1_Q8)
-        ("Q7", Q7, "Bleu@2", score[1]),
-        ("Q7", Q7, "Bleu@3", score[2]),
-        ("Q7", Q7, "Bleu@4", score[3]),
+        # ("Q7", Q7, "Bleu@2", score[1]),
+        # ("Q7", Q7, "Bleu@3", score[2]),
+        # ("Q7", Q7, "Bleu@4", score[3]),
     ]
 
     # 定义表格格式
